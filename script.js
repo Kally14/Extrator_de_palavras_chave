@@ -1,37 +1,45 @@
-const botaoMostraPalavras = document.querySelector('#botao-palavrachaves');
+import { Palavras_ruins } from "./palavrasRuins.js";
 
-botaoMostraPalavras.addEventListener('click', mostraPalavrasChave)
+const botaoMostraPalavras = document.querySelector('#botao-palavrachave');
+
+botaoMostraPalavras.addEventListener('click', mostraPalavrasChave);
 
 function mostraPalavrasChave() {
   const texto = document.querySelector('#entrada-de-texto').value;
   const campoResultado = document.querySelector('#resultado-palavrachave');
-  const PalavrasChave = processaTexto(texto);
+  const palavrasChave = processaTexto(texto);
 
-  campoResultado.textContent = palavras.join(", ");
+  campoResultado.textContent = palavrasChave.join(", ");
 }
 
 function processaTexto(texto) {
-    let palavras = texto.split(/\P{L}+/u);
-    const frequencias = contaFrequencia(palavras);
-    let ordenadas = Object.keys(frequencias).sort(ordenaPalavra);
+  let palavras = texto.split(/\P{L}+/u);
+  for (let i in palavras) {
+    palavras[i] = palavras[i].toLowerCase();
+  }
 
-    function ordenaPalavra(p1, p2) {
-        return frequencias[p2] - frequencias[p1];
-    }
+  palavras = tiraPalavrasRuins(palavras);
 
-    console.log(ordenadas);
-    return ordenadas.slice(0, 10);
+  const ordenadas = ordenaPorFrequencia(palavras);
+  console.log(ordenadas);
+  return ordenadas.slice(0, 10);
 }
 
-function contaFrequencia(palavras) {
-    let frequencias = [];
-    for (let i of palavras) {
-        frequencias[i] = 0;
-        for (let j of palavras) {
-            if (palavras[i] == palavras[j]) {
-                frequencias[i]++;
-            }
-        }
+function ordenaPorFrequencia(palavras) {
+  const frequencia = {};
+  for (const palavra of palavras) {
+    frequencia[palavra] = (frequencia[palavra] || 0) + 1;
+  }
+  return Object.keys(frequencia)
+    .sort((a, b) => frequencia[b] - frequencia[a]);
+}
+
+function tiraPalavrasRuins(palavras) {
+  const palavrasBoas = [];
+  for (const palavra of palavras) {
+    if (!Palavras_ruins.has(palavra) && palavra.length > 2) {
+      palavrasBoas.push(palavra);
     }
-    return frequencias;
+  }
+  return palavrasBoas;
 }
